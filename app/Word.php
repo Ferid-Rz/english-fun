@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Words extends Model
+class Word extends Model
 {
     // public $timestamps = false;
+    use SoftDeletes;
     protected $fillable = array('word');
 }

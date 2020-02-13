@@ -11,27 +11,22 @@
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-
-Route::get('add/', 'WordsController@addWord');
-Route::post('add/', 'WordsController@storeWord');
-
-Route::get('delete/', 'WordsController@deleteWordView');
-Route::post('delete/', 'WordsController@deleteWord');
-
-Route::get('/hardReset', function(){
-    \Artisan::call('db:seed --class=DatabaseSeeder');
-});
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/', 'WordsController@index');
-Route::post('save/', 'WordsController@store');
 
-Route::get('/many', 'WordsController@many');
-Route::post('/many', 'WordsController@storeMany');
+Route::group(['middleware' => ['auth']], function () { 
+    Route::get('/add', 'WordsController@addWord');
+    Route::post('/add', 'WordsController@storeWord');
+
+    Route::get('/delete', 'WordsController@deleteWordView');
+    Route::post('/delete', 'WordsController@deleteWord');
+
+    Route::get('/hardReset', 'WordsController@hardReset');
+
+    Route::post('/save', 'WordsController@store');
+
+    Route::get('/many', 'WordsController@many');
+    Route::post('/many', 'WordsController@storeMany');
+});

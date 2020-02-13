@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Rap2hpoutre\FastExcel\FastExcel;
-use App\Words;
+use App\Word;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        Words::truncate();
+        Word::truncate();
 
         $filePath = base_path(self::FILE);
         $collection = (new FastExcel)->import($filePath);
@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         foreach ($collection as $key => $value) {
             $word = $value['word'];
 
-            Words::firstOrCreate([
+            Word::firstOrCreate([
                 'word' => $word,
             ]);
 

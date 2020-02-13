@@ -2,51 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Words;
+use App\Word;
 use Illuminate\Http\Request;
-use Auth;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class WordsController extends Controller
 {
+    const FILE = 'vehicles_list.xlsx';
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    protected function check()
-    {
-        if(!Auth::user()){ 
-            die("YOU DON'T HAVE PERMISSION TO VIEW THIS PAGE"); 
-        }
-    }
+
     public function index()
     {
-        $this->check();
      
-        $words = Words::where('result',0)->select('word')->inRandomOrder()->first();
+        $words = Word::select('word')->inRandomOrder()->first();
         return view('words/index', ['words' =>  $words['word']]);
+    }
+    
+    
+    public function slide()
+    {
+        $words = Word::select('word')->get();
+        $array = [];
+        foreach($words as $aa){
+            $array[] = $aa['word'];
+        }
+        return view('words/slide', ['words' =>  $array]);
+    }
+    
+    public function api()
+    {
+        $words = Word::select('word')->get();
+        $array = [];
+        foreach($words as $aa){
+            $array[] = $aa['word'];
+        }
+        return $array;
     }
 
     public function store(Request $request)
     {
-        Words::where('word',$request['word'])->update(['result' => 1]);
+        Word::where('word',$request['word'])->delete();
         return redirect( '/');
     }
 
     public function many()
     {
-        $this->check();
 
-        $words = Words::all()->where('result',0)->random(10);
+        $words = Word::all()->random(10);
 
         return view('words/many', ['words' =>  $words]);
     }
 
     public function storeMany(Request $request)
     {
-        // Words::where('word',$request['word'])->update(['result' => 1]);
         foreach($request->word as $id ){
-            Words::where('id',$id)->update(['result' => 1]);
+            Word::where('id',$id)->delete();
         }
       
         return redirect( '/many');
@@ -54,27 +68,54 @@ class WordsController extends Controller
 
     public function addWord()
     {
-        $this->check();
         return view('words/add');
     }
     public function storeWord(Request $request)
     {
         $word =  $request->word;
-        Words::create(['word' => $word]);
+        Word::create(['word' => $word]);
         return redirect( '/');
     }
 
     public function deleteWordView()
     {
-        $this->check();
-        $words = Words::where('result',0)->get();
+        $words = Word::get();
         return view('words/delete', ['words' =>  $words]);
     }
+
     public function deleteWord(Request $request)
     {
         foreach($request->word as $id ){
-            Words::where('id',$id)->update(['result' => 1]);
+            Word::where('id',$id)->delete();
         }
         return redirect( 'delete/');
+    }
+
+    public function saved()
+    {
+        $words = Word::onlyTrashed()->get();
+        $array = [];
+        foreach($words as $aa){
+            $array[] = $aa['word'];
+        }
+        return $array;
+    }
+    
+    
+    public function hardReset()
+    {
+        Word::truncate();
+
+        $filePath = base_path(self::FILE);
+        $collection = (new FastExcel)->import($filePath);
+
+        foreach ($collection as $key => $value) {
+            $word = $value['word'];
+
+            Word::firstOrCreate([
+                'word' => $word,
+            ]);
+
+        }
     }
 }
