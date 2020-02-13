@@ -6,7 +6,7 @@ use App\Word;
 
 class DatabaseSeeder extends Seeder
 {
-    const FILE = 'vehicles_list.xlsx';
+    const FILE = 'default_words.xlsx';
     /**
      * Seed the application's database.
      *
